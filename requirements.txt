@@ -1,0 +1,9 @@
+langchain
+langchain-community
+langchain-ollama
+langchain-groq
+pinecone-client
+flask
+sentence-transformers
+pypdf
+python-dotenv
