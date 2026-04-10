@@ -15,33 +15,18 @@ Its design showcases an end-to-end AI Engineering pipeline: **from raw PDF inges
 
 # Tech Stack: 🛠
 
-- **Embeddings Model**:  all-MiniLM-L6-v2 via HuggingFace — a lightweight, 384-dim model that runs efficiently on local hardware during development.
-- **Vector DB**: Pinecone (Serverless) — chosen for its ease of scaling without managing local infrastructure.
-- **Orchestration**: LangChain (using LCEL for modular, readable chains).
-- **LLM**: Groq API — providing a real-time chat experience.
-- **Backend Framework**: Flask 3.1.
-- **Package Manager**: uv (a much faster alternative to standard pip).
-```
+| Component | Technology | Configuration | Description |
+|-----------|------------|------------------------|---------------|
+| **Embeddings** | HuggingFace | sentence-transformers/all-MiniLM-L6-v2 | a lightweight model that runs efficiently on local hardware during development |
+| **LLM Provider** | Groq API | Llama 4 Scout (17B) | providing a real-time chat experience |
+| **Vector Database** | Pinecone | Serverless, 384 dimensions, cosine similarity | chosen for its ease of scaling without managing local infrastructure |
+| **Orchestration** | LangChain | LCEL | using LCEL (LangChain Expression Language) for modular, readable chains |
+| **Backend Framework** | Flask 3.1 | REST API | A lightweight framework for RESTful API server & template rendering |
+| **Package Management** | uv | - | a much faster alternative to pip for faster dependency resolution and cleaner virtual environment |
+| **Containerization** | Docker | Planned for production deployment | - |
+| **Styling** | Custom CSS | Dark theme, chat bubble styling |
 
-┌───────────────────────────────────────────────────────────────────────┐
-│                              RAG PIPELINE                             │
-├───────────────────────────────────────────────────────────────────────┤
-│                                                                       │
-│  ┌──────────┐     ┌───────────┐     ┌─────────┐     ┌──────────┐      │
-│  │ Document │ ──► │ Retrieval │ ──► │ Context │ ──► │ Generate │      │
-│  │  Input   │     │  Engine   │     │         │     │ Response │      │
-│  └──────────┘     └───────────┘     └─────────┘     └──────────┘      │
-│                      │                   │                 │          │
-│                      ▼                   ▼                 ▼          │
-│                 ┌───────────┐      ┌────────────┐    ┌─────────┐      │
-│                 │ Vector DB │ ────►│  Medical   │    │ Groq    │      │
-│                 │           │      │  Context   │    │ LLM     │      │
-│                 └───────────┘      └────────────┘    └─────────┘      │
-│                                                                       │
-└───────────────────────────────────────────────────────────────────────┘
-```
-
-# How it Works 📖
+# How it Works: 📖
 
 1. **Data Ingestion (The ETL Pipeline)** ─ We don't just dump text. The process is systematic:
    - **Extract**: Raw PDFs are parsed using PyPDF.
@@ -55,25 +40,53 @@ Its design showcases an end-to-end AI Engineering pipeline: **from raw PDF inges
    - It injects those matches into a specialized Clinical System Prompt.
    - The LLM generates a response or admits it doesn't know if the context is missing.
     
----
 
 # Local Setup: 💻
 If you're running this on a machine with limited storage, I recommend using ``uv`` to keep your environment clean.
 
-### Prerequisites
+#### Prerequisites
 - Python 3.12+
-- Pinecone API Key
-- Groq API Key
+- uv
+#### Setup Keys
+Create a .env file in the project root and add:
+- Pinecone API Key ([signup](https://www.pinecone.io/))
+- Groq API Key ([signup](https://console.groq.com/))
 - Hugging-Face Embedding Model API Key
 
 
-# Quick Start
+# Quick Start: ⚡
+#### 1. Clone the repository
+```bash
+git clone https://github.com/<your-username>/medical-assistant-chatbot.git
+```
+#### 2. Set up a virtual environment with uv
+```bash
+uv venv
+.venv\Scripts\activate
+uv sync
+```
+#### 3. Running the Project
+Place your PDFs in the Data/ folder and run:
+```bash
+python store_index.py
+```
+This will take a few minutes, depending on the document size.
+This will:
+- Load PDFs from the `Data/` directory
+- Split documents into chunks
+- Generate embeddings
+- Store vectors in Pinecone
+
+#### 4. Launch the Chatbot
+```bash
+python app.py
+```
+Navigate to http://localhost:5000 to start chatting.
+
+
 
 
 ## System Architecture
-
-### High-Level Component Diagram
-
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │                     PRESENTATION LAYER                               │
@@ -117,189 +130,12 @@ If you're running this on a machine with limited storage, I recommend using ``uv
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-### ETL Pipeline Stages
+# Future Improvements
+[Deployment] **AWS Deployment**: Moving the Flask app to an EC2 instance with an S3 bucket for document storage.
+[UX] **Frontend**: I’m working on a frontend redesign that supports real-time token streaming. This will eliminate the wait time for the user, providing a much smoother, modern chat experience.
 
-| Stage | Function | Component |
-|-------|----------|-----------|
-| **Extract** | `load_pdf()` | Ingest medical PDFs from `Data/` directory using PyPDF |
-| **Transform** | `filter_documents()` | Strip metadata, retain page content only |
-| **Chunk** | `split_doc_into_chunks()` | Recursive character splitting (500/50 overlap) |
-| **Embed** | `load_embeddings_model()` | HuggingFace sentence-transformers (384-dim) |
-| **Load** | `store_embeddings()` | Upsert vectors to Pinecone index |
 
----
 
-## Tech Stack
-
-### Core Infrastructure
-
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Language** | Python 3.12+ | Primary development language |
-| **Environment** | uv | Fast Python package management |
-| **Containerization** | Docker | Planned for production deployment |
-
-### AI/ML Stack
-
-| Component | Technology | Configuration |
-|-----------|------------|---------------|
-| **LLM Provider** | Groq API | Llama 4 Scout (17B) |
-| **Embeddings** | HuggingFace | sentence-transformers/all-MiniLM-L6-v2 |
-| **Vector Database** | Pinecone | Serverless, 384 dimensions, cosine similarity |
-| **Orchestration** | LangChain | LCEL (LangChain Expression Language) |
-
-### Backend & API
-
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Web Framework** | Flask 3.1+ | RESTful API server + template rendering |
-| **Environment** | python-dotenv | Configuration management |
-| **Document Processing** | PyPDF, langchain-community | PDF ingestion |
-
-### Frontend
-
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Styling** | Custom CSS | Dark theme, chat bubble styling |
-
----
-
-## Installation
-
-### Prerequisites
-
-- Python 3.12 or higher
-- [uv](https://github.com/astral-sh/uv) package manager
-- Pinecone API key ([signup](https://www.pinecone.io/))
-- Groq API key ([signup](https://console.groq.com/))
-
-### Step 1: Clone Repository
-
-```bash
-git clone https://github.com/<username>/medical-assistant-chatbot.git
-cd medical-assistant-chatbot
-```
-
-### Step 2: Initialize Environment
-
-```bash
-# Create virtual environment
-uv venv
-
-# Activate environment (Windows PowerShell)
-.venv\Scripts\Activate.ps1
-
-# Activate environment (Unix/bash)
-source .venv/bin/activate
-```
-
-### Step 3: Install Dependencies
-
-```bash
-# Sync dependencies from lock file
-uv sync
-
-# Or install from requirements.txt
-pip install -r requirements.txt
-```
-
-### Step 4: Configure Environment Variables
-
-Create a `.env` file in the project root:
-
-```bash
-# .env
-PINECONE_API_KEY=pcsk_<your_api_key>
-GROQ_API_KEY=gsk_<your_api_key>
-HF_TOKEN=hf_<your_huggingface_token>  # Optional, for rate-limited models
-```
-
----
-
-## Configuration
-
-### Default Settings
-
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `DEFAULT_EMBEDDING_MODEL` | sentence-transformers/all-MiniLM-L6-v2 | Embedding model for document vectors |
-| `DEFAULT_LLM_MODEL` | meta-llama/llama-4-scout-17b-16e-instruct | Groq LLM for response generation |
-| `DEFAULT_INDEX_NAME` | medical-assistant | Pinecone index identifier |
-| `DEFAULT_INDEX_DIMENSION` | 384 | Vector dimensionality |
-| `CHUNK_SIZE` | 500 | Text splitting chunk size |
-| `CHUNK_OVERLAP` | 50 | Text splitting overlap |
-| `RETRIEVAL_K` | 3 | Top-k documents for retrieval |
-
-### Pinecone Index Specification
-
-```python
-ServerlessSpec(
-    cloud="aws",
-    region="us-east-1",
-    metric="cosine",
-    dimension=384
-)
-```
-
----
-
-## Usage
-
-### Step 1: Build the Vector Index
-
-Before running the application, populate the Pinecone index with medical documents:
-
-```bash
-# Run the ETL pipeline to ingest PDFs from Data/
-python store_index.py
-```
-
-This will:
-- Load PDFs from the `Data/` directory
-- Split documents into chunks
-- Generate embeddings
-- Store vectors in Pinecone
-
-### Step 2: Run the Flask Application
-
-```bash
-# Start the web server (default: http://localhost:5000)
-python app.py
-```
-
-### Step 3: Access the Chat Interface
-
-Open your browser and navigate to:
-
-```
-http://localhost:5000
-```
-
-### Programmatic Usage
-
-```python
-from src.helper import (
-    get_existing_vector_store,
-    initialize_groq_llm,
-    system_prompt,
-    build_rag_chain,
-    load_embeddings_model
-)
-
-# Load components
-embedding = load_embeddings_model()
-vector_store = get_existing_vector_store(embedding, "medical-assistant")
-llm = initialize_groq_llm()
-prompt = system_prompt()
-
-# Build and execute chain
-chain = build_rag_chain(vector_store, llm, prompt)
-response = chain.invoke("What are the side effects of low iron?")
-
-print(response)
-```
-
----
 
 ## API Reference
 
