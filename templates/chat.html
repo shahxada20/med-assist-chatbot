@@ -1,81 +1,178 @@
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
 <!DOCTYPE html>
-<html>
-	<head>
-		<title>Chatbot</title>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}"/>
-	</head>
-	
-	
-	<body>
-		<div class="container-fluid h-100">
-			<div class="row justify-content-center h-100">		
-				<div class="col-md-8 col-xl-6 chat">
-					<div class="card">
-						<div class="card-header msg_head">
-							<div class="d-flex bd-highlight">
-								<div class="img_cont">
-									<img src="https://cdn-icons-png.flaticon.com/512/387/387569.png" class="rounded-circle user_img">
-									<!-- <img src="https://www.prdistribution.com/spirit/uploads/pressreleases/2019/newsreleases/d83341deb75c4c4f6b113f27b1e42cd8-chatbot-florence-already-helps-thousands-of-patients-to-remember-their-medication.png" class="rounded-circle user_img"> -->
-									<span class="online_icon"></span>
-								</div>
-								<div class="user_info">
-									<span>Medical Chatbot</span>
-									<p>Ask me anything!</p>
-								</div>
-							</div>
-						</div>
-						<div id="messageFormeight" class="card-body msg_card_body">
-							
-							
-						</div>
-						<div class="card-footer">
-							<form id="messageArea" class="input-group">
-                                <input type="text" id="text" name="msg" placeholder="Type your message..." autocomplete="off" class="form-control type_msg" required/>
-								<div class="input-group-append">
-									<button type="submit" id="send" class="input-group-text send_btn"><i class="fas fa-location-arrow"></i></button>
-								</div>
-							</form>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<script>
-			$(document).ready(function() {
-				$("#messageArea").on("submit", function(event) {
-					const date = new Date();
-					const hour = date.getHours();
-					const minute = date.getMinutes();
-					const str_time = hour+":"+minute;
-					var rawText = $("#text").val();
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        dark: {
+                            bg: '#0f172a',
+                            surface: '#1e293b',
+                            border: '#334155',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-dark-bg text-gray-100 h-screen overflow-hidden flex">
+    <!-- Mobile menu button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-dark-surface border border-dark-border text-gray-300 hover:bg-gray-700 transition-colors">
+        <i class="fas fa-bars"></i>
+    </button>
 
-					var userHtml = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' + rawText + '<span class="msg_time_send">'+ str_time + '</span></div><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
-					
-					$("#text").val("");
-					$("#messageFormeight").append(userHtml);
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed lg:relative w-72 h-full bg-dark-surface border-r border-dark-border flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40">
+        <!-- Sidebar Header -->
+        <div class="p-4 border-b border-dark-border">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
+                    <i class="fas fa-stethoscope text-white text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="font-semibold text-white">MedAI Assistant</h1>
+                    <p class="text-xs text-gray-400">Professional Medical RAG</p>
+                </div>
+            </div>
+        </div>
 
-					$.ajax({
-						data: {
-							msg: rawText,	
-						},
-						type: "POST",
-						url: "/get",
-					}).done(function(data) {
-						var botHtml = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://cdn-icons-png.flaticon.com/512/387/387569.png" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">' + data + '<span class="msg_time">' + str_time + '</span></div></div>';
-						$("#messageFormeight").append($.parseHTML(botHtml));
-					});
-					event.preventDefault();
-				});
-			});
-		</script>
-        
-    </body>
+        <!-- New Chat Button -->
+        <div class="p-4">
+            <button id="newChatBtn" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors font-medium">
+                <i class="fas fa-plus"></i>
+                <span>New Chat</span>
+            </button>
+        </div>
+
+        <!-- Chat History -->
+        <div class="flex-1 overflow-y-auto px-4 pb-4">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Chat History</h3>
+            <div id="chatHistoryList" class="space-y-2">
+                <!-- Chat history items will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Sidebar Footer -->
+        <div class="p-4 border-t border-dark-border">
+            <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-dark-bg/50">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                    <i class="fas fa-user text-white text-xs"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-white truncate">Guest User</p>
+                    <p class="text-xs text-gray-400">Free Tier</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-30 lg:hidden hidden"></div>
+
+    <!-- Main Chat Area -->
+    <main class="flex-1 flex flex-col h-full ml-0 lg:ml-0 w-full">
+        <!-- Chat Header (mobile only) -->
+        <header class="lg:hidden flex items-center justify-center p-4 border-b border-dark-border bg-dark-surface">
+            <h1 class="font-semibold text-white">Medical AI Assistant</h1>
+        </header>
+
+        <!-- Messages Container -->
+        <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4 scroll-smooth">
+            <!-- Welcome Message -->
+            <div class="flex gap-4 max-w-4xl mx-auto">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex-shrink-0 flex items-center justify-center">
+                    <i class="fas fa-robot text-white text-xs"></i>
+                </div>
+                <div class="flex-1 space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span class="font-semibold text-white">MedAI Assistant</span>
+                        <span class="text-xs text-gray-400">Just now</span>
+                    </div>
+                    <div class="bg-dark-surface border border-dark-border rounded-2xl rounded-tl-none p-4 text-gray-100 leading-relaxed">
+                        <p>Hello! I'm your Medical AI Assistant. I can help you with medical information, research papers, and healthcare-related questions.</p>
+                        <p class="mt-2">Please note: I provide information for educational purposes only and should not replace professional medical advice.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typingIndicator" class="hidden px-4 lg:px-6 pb-2">
+            <div class="flex gap-4 max-w-4xl mx-auto">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex-shrink-0 flex items-center justify-center">
+                    <i class="fas fa-robot text-white text-xs"></i>
+                </div>
+                <div class="bg-dark-surface border border-dark-border rounded-2xl rounded-tl-none p-4">
+                    <div class="flex items-center gap-2">
+                        <div class="flex gap-1">
+                            <span class="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 0ms;"></span>
+                            <span class="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 150ms;"></span>
+                            <span class="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 300ms;"></span>
+                        </div>
+                        <span class="text-sm text-gray-400">AI is thinking...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="border-t border-dark-border bg-dark-surface p-4 lg:p-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="relative flex items-end gap-3 bg-dark-bg border border-dark-border rounded-2xl p-3 focus-within:border-primary-500 transition-colors">
+                    <textarea
+                        id="messageInput"
+                        placeholder="Ask a medical question..."
+                        rows="1"
+                        class="flex-1 bg-transparent text-gray-100 placeholder-gray-500 resize-none outline-none px-2 py-2 max-h-32 min-h-[44px]"
+                        style="field-sizing: content;"
+                    ></textarea>
+                    <button
+                        id="sendBtn"
+                        class="flex-shrink-0 w-10 h-10 rounded-xl bg-primary-600 hover:bg-primary-700 disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+                    >
+                        <i class="fas fa-paper-plane text-white text-sm"></i>
+                    </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-3 text-center">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Press Enter to send, Shift+Enter for new line. AI responses are for informational purposes only.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 z-50 transform translate-x-full transition-transform duration-300">
+        <div class="flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border">
+            <i id="toastIcon" class="fas"></i>
+            <span id="toastMessage" class="text-sm font-medium"></span>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='chat.js') }}"></script>
+</body>
 </html>

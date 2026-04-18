@@ -83,7 +83,12 @@ def home():
 def get_response():
     """Handle chat messages and return RAG-generated responses."""
     try:
-        user_message = request.form.get("msg", "").strip()
+        # Support both JSON and form data
+        if request.is_json:
+            data = request.get_json()
+            user_message = data.get("msg", "").strip() if data else ""
+        else:
+            user_message = request.form.get("msg", "").strip()
 
         if not user_message:
             return jsonify({"error": "Empty message"}), 400
@@ -100,7 +105,13 @@ def get_response():
 
         logger.info(f"Response generated successfully.")
 
-        return jsonify(response)
+        # Ensure response is properly formatted for frontend
+        if isinstance(response, dict):
+            return jsonify(response)
+        elif hasattr(response, 'content'):
+            return jsonify({"response": response.content})
+        else:
+            return jsonify({"response": str(response)})
 
     except Exception as e:
         logger.error(f"Error generating response: {e}")
