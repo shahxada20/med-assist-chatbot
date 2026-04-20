@@ -6,6 +6,10 @@ project_template.sh
 agents/
 skills/
 
+# Claude setup
+CLAUDE.md
+.claudeignore
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
