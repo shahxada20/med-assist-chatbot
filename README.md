@@ -1,3 +1,13 @@
+---
+title: MediAssist - Medical RAG Chatbot
+emoji: 🏥
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+license: mit
+---
+
 # MediAssist: Medical RAG Chatbot
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
