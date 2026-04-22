@@ -73,6 +73,12 @@ def initialize_app():
         raise
 
 
+@app.route("/health")
+def health():
+    """Health check endpoint for Hugging Face Spaces."""
+    return jsonify({"status": "healthy", "rag_initialized": bool(rag_components.get("rag_chain"))})
+
+
 @app.route("/")
 def home():
     """Render chat interface."""
@@ -120,4 +126,6 @@ def get_response():
 
 if __name__ == "__main__":
     initialize_app()
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # Hugging Face Spaces sets PORT env var, default to 7860
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host="0.0.0.0", port=port)

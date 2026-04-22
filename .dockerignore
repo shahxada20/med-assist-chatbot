@@ -1,0 +1,15 @@
+.git
+.gitignore
+__pycache__
+*.pyc
+*.pyo
+.env
+.venv
+*.md
+!README.md
+notebooks/
+.ipynb_checkpoints/
+*.ipynb
+.pytest_cache/
+.coverage
+htmlcov/
