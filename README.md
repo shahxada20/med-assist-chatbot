@@ -92,11 +92,5 @@ Navigate to http://localhost:5000 to start chatting.
 - **Deployment**
 - **UX Re-design**
 - **Expand Medical Context**
-- **Health Check Endpoint**: Add `/api/health` for monitoring
-- **Ingestion Endpoint**: Add `/api/ingest` for dynamic PDF upload
-- **Caching Layer**: Redis for query result caching
-- **Evaluation Framework**: RAGAS metrics for retrieval/generation quality
-- **Authorization**: JWT-based API authentication
-
 
 **MediAssist** - Clinical AI Infrastructure for Evidence-Based Medical Information Retrieval
